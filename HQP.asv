@@ -1,0 +1,25 @@
+function [lam, iter, err] = HQP(M_con, H, g_con, f)
+    W = (M_con*inv(H)*M_con')*0.5;
+    Z1 = M_con*inv(H)*f;
+    Z = Z1 + g_con;
+    
+    [r, c] = size(Z);
+    
+    lam = zeros(r);
+    err = [];
+    iter = 1;
+    err(iter) = 1;
+    while (err(iter)>= 10^-6)
+        lam_old = lam;
+        for i = 1:r
+            w = (W(i,:)*lam) - W(i,i)*lam(i) + Z(i);
+            la = -w/W(i,i);
+            lam(i) = max([0, la]);
+        end
+        disp
+        X = lam - lam_old;
+        error = dot(X', X);
+        err = [err, error];
+        iter = iter + 1;
+    end
+end
